@@ -32,16 +32,24 @@ async function run() {
 
         // await client.connect();
 
-        const maths = client.db("maths").collection("maths"); 
+        const maths = client.db("maths").collection("maths");
 
         app.get('/math', async (req, res) => {
             const all = await maths.find().toArray();
             res.send(all);
         })
+        app.post('/math', async (req, res) => {
+            const data = req.body;
+            const result = await maths.insertOne(data);
+
+            res.send(result);
+        })
+        
         // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // console.log('just do nothing')
+        // succesfully deployed
     }
 }
 run().catch(console.dir);
