@@ -32,7 +32,7 @@ async function run() {
 
         await client.connect();
 
-        const maths = await client.db("maths").collection("maths"); 
+        const maths = client.db("maths").collection("maths"); 
 
         app.get('/math', async (req, res) => {
             const all = await maths.find().toArray();
