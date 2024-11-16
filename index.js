@@ -32,6 +32,12 @@ async function run() {
 
         await client.connect();
 
+        const maths = await client.db("maths").collection("maths"); 
+
+        app.get('/math', async (req, res) => {
+            const all = await maths.find().toArray();
+            res.send(all);
+        })
         // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
