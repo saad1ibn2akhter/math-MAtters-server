@@ -33,7 +33,13 @@ async function run() {
         // await client.connect();
 
         const maths = client.db("maths").collection("maths");
+        const contests = client.db("contest").collection("contests");
+        const users = client.db("users").collection("users");
 
+        app.get('/contests', async (req, res) => {
+            const all = await contests.find().toArray();
+            res.send(all);
+        })
         app.get('/math', async (req, res) => {
             const all = await maths.find().toArray();
             res.send(all);
@@ -44,7 +50,25 @@ async function run() {
 
             res.send(result);
         })
-        
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+
+
+            const allUsers = await users.find().toArray();
+            for (let i = 0; i < allUsers.length; i++) {
+                if (allUsers[i].email === user.email) {
+                    return res.send({ message: 'User already exists!' });
+                }
+            }
+            const result = await users.insertOne(user);
+            res.send(result);
+        });
+
+        app.get('/users', async (req, res) => {
+            const all = users.find().toArray();
+            res.send(all);
+        })
+
         // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
