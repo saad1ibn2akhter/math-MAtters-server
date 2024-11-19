@@ -35,6 +35,8 @@ async function run() {
         const maths = client.db("maths").collection("maths");
         const contests = client.db("contest").collection("contests");
         const users = client.db("users").collection("users");
+        const leaderboard = client.db("leaderboard").collection("leaderboard");
+
 
         app.get('/contests', async (req, res) => {
             const all = await contests.find().toArray();
