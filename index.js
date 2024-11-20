@@ -36,6 +36,7 @@ async function run() {
         const contests = client.db("contest").collection("contests");
         const users = client.db("users").collection("users");
         const leaderboard = client.db("leaderboard").collection("leaderboard");
+        const submissions = client.db("submissions").collection("submissions");
 
 
         app.get('/contests', async (req, res) => {
@@ -52,6 +53,45 @@ async function run() {
 
             res.send(result);
         })
+
+        app.patch('/users/:id/solved-problems', async (req, res) => {
+            const { solvedProblem } = req.body;
+            const id = req.params.id;
+
+            try {
+                const result = await users.updateOne(
+                    { _id: new ObjectId(id) },
+                    { $push: { solvedProblems: solvedProblem } },
+                );
+
+                if (result.modifiedCount > 0) {
+                    res.send({ message: 'Solved problem added successfully!' });
+                } else {
+                    res.send({ message: 'No user found with the provided ID.' });
+                }
+            } catch (error) {
+                res.status(500).send({ message: 'An error occurred.', error });
+            }
+        })
+        app.get('/users/:id/solved-problems', async (req, res) => {
+
+        })
+
+        // app.post('/users/:id/submissions', async (req, res) => {
+        //     const id = req.params.id;
+        //     const { submission } = req.body;
+        //     const result = await submissions.insertOne(submission);
+        //     res.send(result);
+        // })
+
+        // app.get('/users/:id/submissions', async (req, res) => {
+        //     const id = req.params.id;
+        //     const filter = { _id: new ObjectId(id) };
+        //     const all = await submissions.find(filter).toArray();
+        //     res.send(all);
+        // })
+
+
         app.post('/users', async (req, res) => {
             const user = req.body;
 
@@ -67,7 +107,13 @@ async function run() {
         });
 
         app.get('/users', async (req, res) => {
-            const all = users.find().toArray();
+            const all = await users.find().toArray();
+            res.send(all);
+        })
+        app.get('/users/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const all = await users.findOne(filter);
             res.send(all);
         })
 
