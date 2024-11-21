@@ -54,63 +54,67 @@ async function run() {
             res.send(result);
         })
 
-        app.patch('/users/:id/solved-problems', async (req, res) => {
-            const { solvedProblem } = req.body;
-            const id = req.params.id;
-
-            try {
-                const result = await users.updateOne(
-                    { _id: new ObjectId(id) },
-                    { $push: { solvedProblems: solvedProblem } },
-                );
-
-                if (result.modifiedCount > 0) {
-                    res.send({ message: 'Solved problem added successfully!' });
-                } else {
-                    res.send({ message: 'No user found with the provided ID.' });
-                }
-            } catch (error) {
-                res.status(500).send({ message: 'An error occurred.', error });
-            }
-        })
-
         // app.patch('/users/:id/solved-problems', async (req, res) => {
         //     const { solvedProblem } = req.body;
         //     const id = req.params.id;
-        
+
         //     try {
-        //         // Check if the user exists
-        //         const user = await users.findOne({ _id: new ObjectId(id) });
-        
-        //         if (!user) {
-        //             return res.status(404).send({ message: 'No user found with the provided ID.' });
-        //         }
-        
-        //         // Check if the problem already exists in the solvedProblems array
-        //         const problemExists = user.solvedProblems.some(
-        //             (problem) => problem.title === solvedProblem.title
-        //         );
-        
-        //         if (problemExists) {
-        //             return res.status(400).send({ message: 'This problem has already been solved by the user.' });
-        //         }
-        
-        //         // Push the new solved problem into the array
         //         const result = await users.updateOne(
         //             { _id: new ObjectId(id) },
-        //             { $push: { solvedProblems: solvedProblem } }
+        //             { $push: { solvedProblems: solvedProblem } },
         //         );
-        
+
         //         if (result.modifiedCount > 0) {
         //             res.send({ message: 'Solved problem added successfully!' });
         //         } else {
         //             res.send({ message: 'No user found with the provided ID.' });
         //         }
         //     } catch (error) {
-        //         console.error('Error occurred during the update:', error);
-        //         res.status(500).send({ message: 'An error occurred.', error: error.message });
+        //         res.status(500).send({ message: 'An error occurred.', error });
         //     }
-        // });
+        // })
+
+        
+        app.patch('/users/:id/solved-problems', async (req, res) => {
+            const { solvedProblem } = req.body;
+            const id = req.params.id;
+        
+            try {
+                
+                const user = await users.findOne({ _id: new ObjectId(id) });
+        
+                if (!user) {
+                    return res.status(404).send({ message: 'No user found with the provided ID.' });
+                }
+
+
+                const problemExists = user.solvedProblems.some(
+                    (problem) => problem.title == solvedProblem.title
+                ); 
+
+                console.log(problemExists);//debugging steps
+
+        
+                if (problemExists) {
+                    return res.status(400).send({ message: 'This problem has already been solved by the user.' });
+                }
+        
+                // Pushing new solved problem into the array
+                const result = await users.updateOne(
+                    { _id: new ObjectId(id) },
+                    { $push: { solvedProblems: solvedProblem } }
+                );
+        
+                if (result.modifiedCount > 0) {
+                    res.send({ message: 'Solved problem added successfully!' });
+                } else {
+                    res.send({ message: 'No user found with the provided ID.' });
+                }
+            } catch (error) {
+                console.error('Error occurred during the update:', error);
+                res.status(500).send({ message: 'An error occurred.', error: error.message });
+            }
+        });
         
 
         
