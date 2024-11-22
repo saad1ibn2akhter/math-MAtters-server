@@ -63,7 +63,10 @@ async function run() {
             );
 
             if(contestantExists){
-                return res.send({message:'That stupid user already exists WHY is he registering again LOGOUT now!!!'})
+                return res.send(
+                    {message:'That stupid user already exists WHY is he registering again LOGOUT now!!!',status:'error'},
+                    
+                )
             }
 
             const result = await contests.updateOne(
