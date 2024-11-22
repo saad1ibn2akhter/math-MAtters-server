@@ -33,7 +33,7 @@ async function run() {
         // await client.connect();
 
         const maths = client.db("maths").collection("maths");
-        const contests = client.db("contest").collection("contests");
+        const contests = client.db("contests").collection("contests");
         const users = client.db("users").collection("users");
         const leaderboard = client.db("leaderboard").collection("leaderboard");
         const submissions = client.db("submissions").collection("submissions");
@@ -42,6 +42,37 @@ async function run() {
         app.get('/contests', async (req, res) => {
             const all = await contests.find().toArray();
             res.send(all);
+        })
+        app.get('/contests/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+
+            const single = await contests.findOne(filter);
+            res.send(single);
+        })
+        app.patch('/contests/:id/contestants', async (req, res) => {
+            const id = req.params.id;
+            const { contestant } = req.body;;
+            const filter = { _id: new ObjectId(id) };
+            const allContestants = await contests.findOne(filter);
+
+            // const contest = await contests.findOne(filter);
+
+            const contestantExists = allContestants.contestants.some(
+                (xyz)=> xyz.name == contestant.name
+            );
+
+            if(contestantExists){
+                return res.send({message:'That stupid user already exists WHY is he registering again LOGOUT now!!!'})
+            }
+
+            const result = await contests.updateOne(
+                { _id: new ObjectId(id) },
+                { $push: { contestants: contestant } },
+            );
+
+            res.send(result);
+
         })
         app.get('/math', async (req, res) => {
             const all = await maths.find().toArray();
@@ -54,35 +85,14 @@ async function run() {
             res.send(result);
         })
 
-        // app.patch('/users/:id/solved-problems', async (req, res) => {
-        //     const { solvedProblem } = req.body;
-        //     const id = req.params.id;
-
-        //     try {
-        //         const result = await users.updateOne(
-        //             { _id: new ObjectId(id) },
-        //             { $push: { solvedProblems: solvedProblem } },
-        //         );
-
-        //         if (result.modifiedCount > 0) {
-        //             res.send({ message: 'Solved problem added successfully!' });
-        //         } else {
-        //             res.send({ message: 'No user found with the provided ID.' });
-        //         }
-        //     } catch (error) {
-        //         res.status(500).send({ message: 'An error occurred.', error });
-        //     }
-        // })
-
-        
         app.patch('/users/:id/solved-problems', async (req, res) => {
             const { solvedProblem } = req.body;
             const id = req.params.id;
-        
+
             try {
-                
+
                 const user = await users.findOne({ _id: new ObjectId(id) });
-        
+
                 if (!user) {
                     return res.status(404).send({ message: 'No user found with the provided ID.' });
                 }
@@ -90,21 +100,21 @@ async function run() {
 
                 const problemExists = user.solvedProblems.some(
                     (problem) => problem.title == solvedProblem.title
-                ); 
+                );
 
                 console.log(problemExists);//debugging steps
 
-        
+
                 if (problemExists) {
                     return res.status(400).send({ message: 'This problem has already been solved by the user.' });
                 }
-        
+
                 // Pushing new solved problem into the array
                 const result = await users.updateOne(
                     { _id: new ObjectId(id) },
                     { $push: { solvedProblems: solvedProblem } }
                 );
-        
+
                 if (result.modifiedCount > 0) {
                     res.send({ message: 'Solved problem added successfully!' });
                 } else {
@@ -115,27 +125,14 @@ async function run() {
                 res.status(500).send({ message: 'An error occurred.', error: error.message });
             }
         });
-        
 
-        
+
+
         app.get('/users/:id/solved-problems', async (req, res) => {
 
         })
 
-        // app.post('/users/:id/submissions', async (req, res) => {
-        //     const id = req.params.id;
-        //     const { submission } = req.body;
-        //     const result = await submissions.insertOne(submission);
-        //     res.send(result);
-        // })
-
-        // app.get('/users/:id/submissions', async (req, res) => {
-        //     const id = req.params.id;
-        //     const filter = { _id: new ObjectId(id) };
-        //     const all = await submissions.find(filter).toArray();
-        //     res.send(all);
-        // })
-
+      
 
         app.post('/users', async (req, res) => {
             const user = req.body;
