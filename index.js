@@ -50,6 +50,42 @@ async function run() {
             const single = await contests.findOne(filter);
             res.send(single);
         })
+        app.patch('/contests/:id/contestants/submissions', async (req, res) => {
+            const id = req.params.id;
+            const { contestant } = req.body;
+            const filter = { _id: new ObjectId(id) };
+            const allContestants = await contests.findOne(filter);
+
+            
+
+            // const contestantExists = allContestants.contestants.some(
+            //     (xyz)=> xyz.name == contestant.name
+            // );
+
+
+
+            // if(contestantExists){
+            //     // return res.send(
+            //     //     {message:'That stupid user already exists WHY is he registering again LOGOUT now!!!',status:'error'},
+                    
+            //     // )
+
+            //     const result = await contests.updateOne(
+            //         { _id: new ObjectId(id) },
+            //         { $push: { contestants: contestant } },
+            //     );
+    
+            //     res.send(result);
+            // }
+
+            const result = await contests.updateOne(
+                { _id: new ObjectId(id) },
+                { $push: { contestants: contestant } },
+            );
+
+            res.send(result);
+
+        })
         app.patch('/contests/:id/contestants', async (req, res) => {
             const id = req.params.id;
             const { contestant } = req.body;;
@@ -128,6 +164,14 @@ async function run() {
                 res.status(500).send({ message: 'An error occurred.', error: error.message });
             }
         });
+
+        app.patch('/submissions/:id', async (req, res) => {
+            const { submission } = req.body;
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const allSubmissions = await submissions.findOne(filter);
+
+        })
 
 
 
